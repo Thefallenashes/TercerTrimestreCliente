@@ -26,3 +26,17 @@ function peticion1() {
 
 fetch("https://jsonplaceholder.typicode.com/posts/1").then(response => response.json()).then(data => console.log(data)).catch(error => console.error(error));
 
+
+//Metodo moderno async/await
+
+async function obtener() {
+    try {
+        const response = await fetch("https://restful-api.dev/collectionsu");
+        const data = await response.json();
+        console.log(data);
+    } catch (error) {
+        console.error(error);
+    }
+}
+obtener();
+
