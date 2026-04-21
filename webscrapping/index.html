@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Archivo documental del caso Epstein</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --panel: rgba(255, 250, 240, 0.78);
+            --ink: #1f1a17;
+            --muted: #685b52;
+            --accent: #a43c2d;
+            --border: rgba(31, 26, 23, 0.1);
+            --shadow: 0 18px 60px rgba(56, 37, 19, 0.14);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            font-family: "Manrope", sans-serif;
+            color: var(--ink);
+            background:
+                radial-gradient(circle at top left, rgba(212, 162, 74, 0.38), transparent 28%),
+                radial-gradient(circle at 85% 18%, rgba(164, 60, 45, 0.18), transparent 22%),
+                linear-gradient(180deg, #f8f3ea 0%, #eee3d4 100%);
+        }
+
+        .page-shell {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            backdrop-filter: blur(16px);
+            background: rgba(245, 239, 228, 0.72);
+            border-bottom: 1px solid rgba(31, 26, 23, 0.08);
+        }
+
+        .topbar-inner,
+        .hero,
+        .content,
+        .footer-inner {
+            width: min(1160px, calc(100% - 32px));
+            margin: 0 auto;
+        }
+
+        .topbar-inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 18px;
+            padding: 16px 0;
+        }
+
+        .brand {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .brand strong {
+            font-size: 0.88rem;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            color: var(--accent);
+        }
+
+        .brand span {
+            font-size: 0.95rem;
+            color: var(--muted);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .nav-links a,
+        .action-btn,
+        .filter-btn {
+            text-decoration: none;
+            color: inherit;
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            transition: transform 0.25s ease, background 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+        }
+
+        .nav-links a {
+            padding: 10px 14px;
+            font-size: 0.92rem;
+            background: rgba(255, 255, 255, 0.38);
+        }
+
+        .nav-links a:hover,
+        .action-btn:hover,
+        .filter-btn:hover {
+            transform: translateY(-2px);
+            border-color: rgba(164, 60, 45, 0.35);
+        }
+
+        .hero {
+            display: grid;
+            grid-template-columns: 1.25fr 0.9fr;
+            gap: 24px;
+            padding: 54px 0 28px;
+            align-items: stretch;
+        }
+
+        .hero-copy,
+        .hero-panel,
+        .filters,
+        .results,
+        .notes {
+            background: var(--panel);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: var(--shadow);
+            border-radius: 28px;
+        }
+
+        .hero-copy {
+            padding: 34px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-copy::after {
+            content: "";
+            position: absolute;
+            inset: auto -40px -70px auto;
+            width: 210px;
+            height: 210px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(164, 60, 45, 0.16), transparent 68%);
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            padding: 8px 14px;
+            border-radius: 999px;
+            background: rgba(164, 60, 45, 0.09);
+            color: var(--accent);
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+        }
+
+        h1,
+        h2 {
+            margin: 0;
+            font-family: "Playfair Display", serif;
+            line-height: 1.05;
+        }
+
+        h1 {
+            font-size: clamp(2.6rem, 5vw, 4.7rem);
+            margin-top: 18px;
+        }
+
+        .hero-copy p {
+            max-width: 62ch;
+            color: var(--muted);
+            font-size: 1.05rem;
+            line-height: 1.75;
+            margin: 20px 0 0;
+        }
+
+        .hero-actions {
+            margin-top: 28px;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            padding: 13px 18px;
+            font-weight: 700;
+            background: rgba(255, 255, 255, 0.45);
+            cursor: pointer;
+        }
+
+        .action-btn.primary {
+            background: linear-gradient(135deg, var(--accent), #7c271d);
+            color: #fffaf4;
+            border-color: transparent;
+        }
+
+        .hero-panel {
+            padding: 28px;
+            display: grid;
+            gap: 16px;
+            align-content: start;
+        }
+
+        .hero-panel h2 {
+            font-size: 1.65rem;
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        .stat-card {
+            padding: 18px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.58);
+            border: 1px solid rgba(31, 26, 23, 0.08);
+        }
+
+        .stat-card strong {
+            display: block;
+            font-size: 1.7rem;
+            margin-bottom: 8px;
+        }
+
+        .stat-card span {
+            color: var(--muted);
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .content {
+            display: grid;
+            gap: 24px;
+            padding-bottom: 42px;
+        }
+
+        .filters,
+        .results,
+        .notes {
+            padding: 28px;
+        }
+
+        .section-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: end;
+            gap: 18px;
+            margin-bottom: 18px;
+        }
+
+        .section-head p {
+            margin: 0;
+            color: var(--muted);
+            max-width: 70ch;
+            line-height: 1.7;
+        }
+
+        .filter-groups {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 16px;
+        }
+
+        .filter-group {
+            padding: 20px;
+            border-radius: 22px;
+            background: rgba(255, 255, 255, 0.48);
+            border: 1px solid rgba(31, 26, 23, 0.08);
+        }
+
+        .filter-group h3 {
+            margin: 0 0 14px;
+            font-size: 1rem;
+        }
+
+        .button-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 10px 14px;
+            background: rgba(255, 250, 240, 0.95);
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .filter-btn.active {
+            background: linear-gradient(135deg, #241914, #5d1f18);
+            color: #fff;
+            border-color: transparent;
+            box-shadow: 0 12px 24px rgba(36, 25, 20, 0.2);
+        }
+
+        .results-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 18px;
+        }
+
+        .results-meta p {
+            margin: 0;
+            color: var(--muted);
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 18px;
+        }
+
+        .record-card {
+            position: relative;
+            overflow: hidden;
+            padding: 22px;
+            border-radius: 24px;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(253, 246, 236, 0.82));
+            border: 1px solid rgba(31, 26, 23, 0.08);
+            min-height: 240px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            animation: riseIn 0.45s ease both;
+        }
+
+        .record-card::before {
+            content: "";
+            position: absolute;
+            inset: auto -30px -30px auto;
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(215, 162, 74, 0.24), transparent 70%);
+        }
+
+        .card-top {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            align-items: start;
+        }
+
+        .tag,
+        .year-pill {
+            border-radius: 999px;
+            padding: 7px 12px;
+            font-size: 0.78rem;
+            font-weight: 800;
+            letter-spacing: 0.04em;
+        }
+
+        .tag {
+            background: rgba(164, 60, 45, 0.08);
+            color: var(--accent);
+        }
+
+        .year-pill {
+            background: rgba(31, 26, 23, 0.08);
+            color: var(--ink);
+        }
+
+        .record-card h3 {
+            margin: 0;
+            font-size: 1.25rem;
+            line-height: 1.3;
+        }
+
+        .record-card p {
+            margin: 0;
+            color: var(--muted);
+            line-height: 1.65;
+        }
+
+        .card-foot {
+            margin-top: auto;
+            padding-top: 14px;
+            border-top: 1px solid rgba(31, 26, 23, 0.08);
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            font-size: 0.9rem;
+            color: var(--muted);
+        }
+
+        .notes {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 18px;
+        }
+
+        .note-panel {
+            padding: 22px;
+            border-radius: 22px;
+            background: rgba(255, 255, 255, 0.45);
+            border: 1px solid rgba(31, 26, 23, 0.08);
+        }
+
+        .note-panel h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+
+        .note-panel p,
+        .note-panel li {
+            color: var(--muted);
+            line-height: 1.7;
+        }
+
+        .note-panel ul {
+            margin: 0;
+            padding-left: 18px;
+        }
+
+        footer {
+            margin-top: auto;
+            border-top: 1px solid rgba(31, 26, 23, 0.08);
+            background: rgba(31, 26, 23, 0.92);
+            color: rgba(255, 250, 240, 0.8);
+        }
+
+        .footer-inner {
+            padding: 22px 0 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .footer-inner p {
+            margin: 0;
+            max-width: 72ch;
+            line-height: 1.6;
+        }
+
+        .empty-state {
+            padding: 22px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.58);
+            border: 1px dashed rgba(31, 26, 23, 0.16);
+            color: var(--muted);
+        }
+
+        @keyframes riseIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 980px) {
+            .hero,
+            .notes,
+            .filter-groups,
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .topbar-inner,
+            .section-head,
+            .results-meta,
+            .footer-inner {
+                align-items: start;
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .hero-copy,
+            .hero-panel,
+            .filters,
+            .results,
+            .notes {
+                padding: 22px;
+                border-radius: 24px;
+            }
+
+            h1 {
+                font-size: 2.25rem;
+            }
+
+            .stat-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-shell">
+        <header class="topbar">
+            <div class="topbar-inner">
+                <div class="brand">
+                    <strong>Archivo</strong>
+                    <span>Registros y referencias del caso Epstein</span>
+                </div>
+
+                <nav class="nav-links">
+                    <a href="#inicio">Inicio</a>
+                    <a href="#filtros">Secciones</a>
+                    <a href="#resultados">Resultados</a>
+                    <a href="#notas">Notas</a>
+                </nav>
+            </div>
+        </header>
+
+        <main>
+            <section class="hero" id="inicio">
+                <article class="hero-copy">
+                    <span class="eyebrow">Consulta visual</span>
+                    <h1>Listado temático del caso Epstein en una interfaz por secciones.</h1>
+                    <p>
+                        Esta página organiza referencias públicas conocidas sobre el caso Epstein en bloques filtrables.
+                        Los botones cambian el contenido mostrado en tarjetas para separar personas, documentos,
+                        cronología y registros públicos de forma clara.
+                    </p>
+
+                    <div class="hero-actions">
+                        <button class="action-btn primary quick-filter" data-filter-group="category" data-filter-value="persona">Ver personas</button>
+                        <button class="action-btn quick-filter" data-filter-group="category" data-filter-value="documento">Ver documentos</button>
+                        <button class="action-btn quick-filter" data-filter-group="category" data-filter-value="cronologia">Ver cronología</button>
+                    </div>
+                </article>
+
+                <aside class="hero-panel">
+                    <h2>Resumen interactivo</h2>
+                    <p>La vista combina filtros por tipo, naturaleza del registro y periodo aproximado.</p>
+
+                    <div class="stat-grid">
+                        <div class="stat-card">
+                            <strong>10</strong>
+                            <span>Entradas iniciales preparadas para mostrarse en cartas.</span>
+                        </div>
+                        <div class="stat-card">
+                            <strong>3</strong>
+                            <span>Bloques de botones para navegar por distintas secciones.</span>
+                        </div>
+                        <div class="stat-card">
+                            <strong>100%</strong>
+                            <span>Diseño adaptable para escritorio y móvil.</span>
+                        </div>
+                        <div class="stat-card">
+                            <strong>1 aviso</strong>
+                            <span>Se recuerda que aparecer en un registro no equivale a culpabilidad.</span>
+                        </div>
+                    </div>
+                </aside>
+            </section>
+
+            <div class="content">
+                <section class="filters" id="filtros">
+                    <div class="section-head">
+                        <div>
+                            <h2>Filtrar por secciones</h2>
+                        </div>
+                        <p>
+                            Usa los botones para combinar distintos criterios. El listado está planteado como archivo informativo
+                            de referencias públicas y no como afirmación de culpabilidad.
+                        </p>
+                    </div>
+
+                    <div class="filter-groups">
+                        <div class="filter-group">
+                            <h3>Tipo</h3>
+                            <div class="button-row" id="categoryButtons"></div>
+                        </div>
+
+                        <div class="filter-group">
+                            <h3>Registro</h3>
+                            <div class="button-row" id="recordButtons"></div>
+                        </div>
+
+                        <div class="filter-group">
+                            <h3>Periodo</h3>
+                            <div class="button-row" id="periodButtons"></div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="results" id="resultados">
+                    <div class="section-head">
+                        <div>
+                            <h2>Resultados en cartas</h2>
+                        </div>
+                        <p>
+                            Cada tarjeta resume una referencia pública con categoría, año orientativo y tipo de fuente.
+                        </p>
+                    </div>
+
+                    <div class="results-meta">
+                        <p id="activeFiltersText">Mostrando todas las entradas disponibles.</p>
+                        <p id="resultsCount">0 resultados</p>
+                    </div>
+
+                    <div class="cards-grid" id="cardsGrid"></div>
+                </section>
+
+                <section class="notes" id="notas">
+                    <article class="note-panel">
+                        <h3>Lectura responsable</h3>
+                        <p>
+                            Varios nombres aparecen en documentos judiciales, registros de vuelo o declaraciones públicas.
+                            Esa aparición por sí sola no demuestra participación en delitos. El contenido debe interpretarse
+                            como índice visual de referencias y no como sentencia.
+                        </p>
+                    </article>
+
+                    <article class="note-panel">
+                        <h3>Secciones incluidas</h3>
+                        <ul>
+                            <li>Personas clave vinculadas al caso en documentos o procesos públicos.</li>
+                            <li>Documentos y registros habitualmente citados en la cobertura del caso.</li>
+                            <li>Hitos cronológicos para situar los acontecimientos.</li>
+                        </ul>
+                    </article>
+                </section>
+            </div>
+        </main>
+
+        <footer>
+            <div class="footer-inner">
+                <p>
+                    Archivo visual de consulta. Si quieres alimentar esta interfaz con datos reales desde un JSON o desde tu archivo
+                    de scraping, se puede conectar el grid a una fuente externa sin cambiar el diseño.
+                </p>
+                <span>Diseño editorial con tarjetas y filtros</span>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        const filters = {
+            category: 'all',
+            record: 'all',
+            period: 'all'
+        };
+
+        const records = [
+            {
+                title: 'Jeffrey Epstein',
+                category: 'persona',
+                record: 'principal',
+                period: '2000s',
+                year: '2008',
+                source: 'Proceso judicial',
+                summary: 'Figura central del caso y condenado en 2008 por delitos sexuales relacionados con menores.',
+                detail: 'Caso principal'
+            },
+            {
+                title: 'Ghislaine Maxwell',
+                category: 'persona',
+                record: 'principal',
+                period: '2020s',
+                year: '2021',
+                source: 'Juicio federal',
+                summary: 'Colaboradora de Epstein condenada por captación y abuso de menores.',
+                detail: 'Condena pública'
+            },
+            {
+                title: 'Virginia Giuffre',
+                category: 'persona',
+                record: 'testimonio',
+                period: '2010s',
+                year: '2015',
+                source: 'Demandas y declaraciones',
+                summary: 'Una de las denunciantes más conocidas en los litigios públicos relacionados con el caso.',
+                detail: 'Testimonio relevante'
+            },
+            {
+                title: 'Prince Andrew',
+                category: 'persona',
+                record: 'mencion',
+                period: '2020s',
+                year: '2022',
+                source: 'Acuerdo extrajudicial',
+                summary: 'Nombre aparecido en acusaciones y cobertura judicial pública; negó las acusaciones.',
+                detail: 'Mención pública'
+            },
+            {
+                title: 'Bill Clinton',
+                category: 'persona',
+                record: 'registro',
+                period: '2000s',
+                year: '2002',
+                source: 'Registros de vuelo citados',
+                summary: 'Aparece en registros de vuelo publicados en medios y documentos; esa mención no implica delito.',
+                detail: 'Registro público'
+            },
+            {
+                title: 'Flight Logs',
+                category: 'documento',
+                record: 'registro',
+                period: '2000s',
+                year: '1991-2005',
+                source: 'Registros de vuelo',
+                summary: 'Conjunto de bitácoras de vuelos utilizadas con frecuencia como fuente documental en reportajes y procesos.',
+                detail: 'Documento público'
+            },
+            {
+                title: 'Little Black Book',
+                category: 'documento',
+                record: 'registro',
+                period: '2000s',
+                year: '2009',
+                source: 'Agenda de contactos filtrada',
+                summary: 'Agenda atribuida a Epstein, citada por medios y analistas como referencia de contactos.',
+                detail: 'Fuente documental'
+            },
+            {
+                title: 'Documentos desclasificados',
+                category: 'documento',
+                record: 'mencion',
+                period: '2020s',
+                year: '2024',
+                source: 'Archivos judiciales',
+                summary: 'Publicación de nuevos nombres y referencias en documentos judiciales previamente sellados.',
+                detail: 'Expedientes públicos'
+            },
+            {
+                title: 'Acuerdo de 2008',
+                category: 'cronologia',
+                record: 'principal',
+                period: '2000s',
+                year: '2008',
+                source: 'Cronología judicial',
+                summary: 'Uno de los hitos más citados al revisar la evolución judicial del caso.',
+                detail: 'Hito clave'
+            },
+            {
+                title: 'Detención de 2019',
+                category: 'cronologia',
+                record: 'principal',
+                period: '2010s',
+                year: '2019',
+                source: 'Cobertura pública',
+                summary: 'Reactivación mediática y judicial del caso tras la nueva detención de Epstein en Nueva York.',
+                detail: 'Cronología'
+            }
+        ];
+
+        const filterConfig = {
+            category: [
+                { value: 'all', label: 'Todo' },
+                { value: 'persona', label: 'Personas' },
+                { value: 'documento', label: 'Documentos' },
+                { value: 'cronologia', label: 'Cronología' }
+            ],
+            record: [
+                { value: 'all', label: 'Cualquier registro' },
+                { value: 'principal', label: 'Caso principal' },
+                { value: 'testimonio', label: 'Testimonios' },
+                { value: 'registro', label: 'Registros públicos' },
+                { value: 'mencion', label: 'Menciones judiciales' }
+            ],
+            period: [
+                { value: 'all', label: 'Todos los periodos' },
+                { value: '2000s', label: '2000s' },
+                { value: '2010s', label: '2010s' },
+                { value: '2020s', label: '2020s' }
+            ]
+        };
+
+        const buttonsContainers = {
+            category: document.getElementById('categoryButtons'),
+            record: document.getElementById('recordButtons'),
+            period: document.getElementById('periodButtons')
+        };
+
+        const cardsGrid = document.getElementById('cardsGrid');
+        const resultsCount = document.getElementById('resultsCount');
+        const activeFiltersText = document.getElementById('activeFiltersText');
+
+        function createButtons(groupName) {
+            buttonsContainers[groupName].innerHTML = '';
+
+            filterConfig[groupName].forEach((item) => {
+                const button = document.createElement('button');
+                button.className = 'filter-btn';
+                button.textContent = item.label;
+                button.dataset.value = item.value;
+
+                if (filters[groupName] === item.value) {
+                    button.classList.add('active');
+                }
+
+                button.addEventListener('click', () => {
+                    filters[groupName] = item.value;
+                    refreshButtons();
+                    renderCards();
+                });
+
+                buttonsContainers[groupName].appendChild(button);
+            });
+        }
+
+        function refreshButtons() {
+            Object.keys(filterConfig).forEach(createButtons);
+        }
+
+        function formatFilterLabel(groupName, value) {
+            const selected = filterConfig[groupName].find((item) => item.value === value);
+            return selected ? selected.label : 'Todo';
+        }
+
+        function buildCard(record, index) {
+            return `
+                <article class="record-card" style="animation-delay: ${index * 0.04}s">
+                    <div class="card-top">
+                        <span class="tag">${formatFilterLabel('category', record.category)}</span>
+                        <span class="year-pill">${record.year}</span>
+                    </div>
+                    <h3>${record.title}</h3>
+                    <p>${record.summary}</p>
+                    <div class="card-foot">
+                        <span>${record.detail}</span>
+                        <span>${record.source}</span>
+                    </div>
+                </article>
+            `;
+        }
+
+        function renderCards() {
+            const visibleRecords = records.filter((record) => {
+                return Object.entries(filters).every(([groupName, value]) => {
+                    return value === 'all' || record[groupName] === value;
+                });
+            });
+
+            activeFiltersText.textContent = `Filtros activos: ${formatFilterLabel('category', filters.category)} · ${formatFilterLabel('record', filters.record)} · ${formatFilterLabel('period', filters.period)}`;
+            resultsCount.textContent = `${visibleRecords.length} resultado${visibleRecords.length === 1 ? '' : 's'}`;
+
+            if (!visibleRecords.length) {
+                cardsGrid.innerHTML = '<div class="empty-state">No hay coincidencias para esta combinación de botones. Prueba otra sección o amplía el filtro.</div>';
+                return;
+            }
+
+            cardsGrid.innerHTML = visibleRecords.map(buildCard).join('');
+        }
+
+        document.querySelectorAll('.quick-filter').forEach((button) => {
+            button.addEventListener('click', () => {
+                filters[button.dataset.filterGroup] = button.dataset.filterValue;
+                refreshButtons();
+                renderCards();
+                document.getElementById('resultados').scrollIntoView({ behavior: 'smooth' });
+            });
+        });
+
+        refreshButtons();
+        renderCards();
+    </script>
+</body>
+</html>
