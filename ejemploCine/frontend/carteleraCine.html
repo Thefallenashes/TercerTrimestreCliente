@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Cartelera</title>
+    <style>
+        body {
+            font-family: Arial;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            border: 1px solid #ccc;
+            padding: 10px;
+            border-radius: 10px;
+        }
+
+        img {
+            width: 100%;
+            border-radius: 10px;
+        }
+
+        #loading {
+            font-size: 20px;
+            text-align: center;
+            margin: 20px;
+        }
+
+        button {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            font-size: 26px;
+            font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+        }
+    </style>
+</head>
+
+<body>
+
+    <button onclick="cargarPeliculas()">Buscar películas</button>
+
+    <div id="loading" style="display:none;">Cargando...</div>
+
+    <div id="peliculas" class="grid"></div>
+
+
+    <script src="cartelera.js"></script>
+</body>
+
+</html>

@@ -45,7 +45,7 @@ async function example3() {
 };
 example3();
 
-**/
+
 
 async function alsa() {
     const browser = await puppeteer.launch({
@@ -64,3 +64,25 @@ async function alsa() {
     await browser.close();
 };
 alsa();
+**/
+
+async function example3() {
+    const browser = await puppeteer.launch();
+      const page = await browser.newPage();
+    await page.goto('https://caparazonverde.neocities.org/');
+     await page.click('#login');
+     await page.type('#email' , 'diego@unendo.com');
+     await page.type('#password', '123456');
+    await page.click('#login-button');
+    await page.waitForFunction(()=>{
+        const el =document.querySelector('#message');
+        return el && el.innerText.length>0;
+    });
+    const message =await page.evaluate(()=>{
+        return document.querySelector('#message').innerText;
+    })
+    console.log(message);
+    await browser.close();
+    
+};
+example3();

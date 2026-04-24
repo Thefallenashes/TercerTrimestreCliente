@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APIII</title>
+</head>
+
+<body>
+    <button onclick="cargar()">Cargar datos</button>
+
+    <script>
+        async function cargar() {
+            const res = await fetch("http://localhost:3000/datos");
+            const data = await res.json();
+            console.log(data);
+
+            let contenido = document.createElement("p");
+            contenido.textContent = data.mensaje;
+            document.body.appendChild(contenido);
+        }
+    </script>
+</body>
+
+</html>

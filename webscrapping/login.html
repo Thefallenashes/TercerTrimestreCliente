@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <style>
+        :root {
+            --bg-1: #efe4d4;
+            --bg-2: #f8f3ea;
+            --panel: rgba(255, 250, 240, 0.9);
+            --ink: #1f1a17;
+            --muted: #685b52;
+            --accent: #a43c2d;
+            --border: rgba(31, 26, 23, 0.12);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: grid;
+            place-items: center;
+            font-family: "Manrope", sans-serif;
+            color: var(--ink);
+            background:
+                radial-gradient(circle at 15% 20%, rgba(212, 162, 74, 0.35), transparent 28%),
+                radial-gradient(circle at 85% 10%, rgba(164, 60, 45, 0.18), transparent 20%),
+                linear-gradient(180deg, var(--bg-2) 0%, var(--bg-1) 100%);
+            padding: 20px;
+        }
+
+        .login-card {
+            width: min(420px, 100%);
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 28px;
+            box-shadow: 0 20px 45px rgba(56, 37, 19, 0.16);
+        }
+
+        h1 {
+            margin: 0 0 8px;
+            font-size: 2rem;
+        }
+
+        p {
+            margin: 0;
+            color: var(--muted);
+            line-height: 1.6;
+        }
+
+        form {
+            margin-top: 20px;
+            display: grid;
+            gap: 14px;
+        }
+
+        label {
+            font-weight: 700;
+            font-size: 0.95rem;
+        }
+
+        input {
+            width: 100%;
+            margin-top: 6px;
+            padding: 11px 12px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            font-size: 1rem;
+            background: rgba(255, 255, 255, 0.8);
+        }
+
+        button {
+            margin-top: 4px;
+            border: none;
+            border-radius: 999px;
+            padding: 12px 16px;
+            font-weight: 700;
+            font-size: 1rem;
+            color: #fffaf4;
+            background: linear-gradient(135deg, var(--accent), #7c271d);
+            cursor: pointer;
+        }
+
+        #resultado {
+            margin-top: 16px;
+            font-size: 1.1rem;
+            font-weight: 800;
+            min-height: 1.4em;
+        }
+
+        .back-link {
+            margin-top: 18px;
+            display: inline-block;
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+    <section class="login-card">
+        <h1>Login</h1>
+        <p>Introduce usuario y contrasena.</p>
+
+        <form id="loginForm">
+            <label>
+                Usuario
+                <input type="text" id="usuario" required>
+            </label>
+
+            <label>
+                Contrasena
+                <input type="password" id="contrasena" required>
+            </label>
+
+            <button type="submit">Entrar</button>
+        </form>
+
+        <div id="resultado"></div>
+        <a class="back-link" href="index.html">Volver al inicio</a>
+    </section>
+
+    <script>
+        const loginForm = document.getElementById('loginForm');
+        const resultado = document.getElementById('resultado');
+
+        const USUARIO_VALIDO = '1234';
+        const CONTRASENA_VALIDA = '1234';
+
+        loginForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+
+            const usuario = document.getElementById('usuario').value;
+            const contrasena = document.getElementById('contrasena').value;
+
+            if (usuario === USUARIO_VALIDO && contrasena === CONTRASENA_VALIDA) {
+                resultado.textContent = 'correcto';
+                return;
+            }
+
+            resultado.textContent = 'incorrecto';
+        });
+    </script>
+</body>
+</html>
