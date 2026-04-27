@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quotes Scraper – DWEC</title>
+    <title>Scraper de https://quotes.toscrape.com/</title>
     <style>
         /* ── Reset & Variables ── */
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -178,7 +178,7 @@
         }
 
         /* ── Cards ── */
-        .card {
+        .quote {
             background: var(--surface);
             border: 1px solid var(--border);
             border-radius: var(--radius);
@@ -190,7 +190,7 @@
             animation: fadeIn .3s ease both;
         }
 
-        .card:hover {
+        .quote:hover {
             transform: translateY(-4px);
             box-shadow: 0 8px 24px rgba(0,0,0,.4);
         }
@@ -286,7 +286,7 @@
 
     <header>
         <h1>&#8220; Quotes Scraper &#8221;</h1>
-        <p>Datos obtenidos en tiempo real de <strong>quotes.toscrape.com</strong></p>
+        <p>Datos obtenidos en tiempo real de <a href="https://quotes.toscrape.com/">  <strong>quotes.toscrape.com/</strong></a></p>
     </header>
 
     <div class="controls">
@@ -322,7 +322,6 @@
         DWEC – Proyecto Scraping &nbsp;|&nbsp; Daniel García Flores
     </footer>
 
-    <script src="peticion.js"></script>
 </body>
 
 </html>

@@ -1,12 +1,194 @@
 const express = require("express");
 const puppeteer = require("puppeteer");
 const cors = require("cors");
+const fs = require("fs");
+const path = require("path");
 
 const app = express();
 const PORT = 3000;
 
 app.use(cors());
 app.use(express.json());
+
+// Servir archivos estáticos desde la carpeta Front
+app.use(express.static(path.join(__dirname, "..", "Front"), { index: false }));
+
+const FRONTEND_SCRIPT = `
+const API_BASE = "/api";
+
+const btnBuscar = document.getElementById("btn-buscar");
+const btnActualizar = document.getElementById("btn-actualizar");
+const searchInput = document.getElementById("search-input");
+const tagSelect = document.getElementById("tag-select");
+const grid = document.getElementById("grid");
+const loader = document.getElementById("loader");
+const statusBar = document.getElementById("status-bar");
+const emptyMsg = document.getElementById("empty-msg");
+
+let allQuotes = [];
+
+function setLoading(active) {
+    loader.classList.toggle("visible", active);
+    grid.style.display = active ? "none" : "grid";
+    btnBuscar.disabled = active;
+    btnActualizar.disabled = active;
+}
+
+function setStatus(message) {
+    statusBar.textContent = message;
+}
+
+function getTagOptions() {
+    return Object.fromEntries(
+        Array.from(tagSelect.options).map(option => [option.value, true])
+    );
+}
+
+function escapeHtml(value) {
+    return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/\"/g, "&quot;");
+}
+
+function renderCards(quotes) {
+    Array.from(grid.children).forEach(child => {
+        if (child.id !== "empty-msg") child.remove();
+    });
+
+    if (quotes.length === 0) {
+        emptyMsg.style.display = "block";
+        return;
+    }
+
+    emptyMsg.style.display = "none";
+
+    quotes.forEach((quote, index) => {
+        const card = document.createElement("div");
+        const initial = (quote.author && quote.author[0] ? quote.author[0] : "?").toUpperCase();
+        const tagsHtml = (quote.tags || []).map(tag => {
+            return '<span class="tag" data-tag="' + tag + '">' + tag + '</span>';
+        }).join("");
+
+        card.className = "quote";
+        card.style.animationDelay = Math.min(index * 40, 600) + "ms";
+        card.innerHTML =
+            '<p class="card-quote">' + escapeHtml(quote.text) + '</p>' +
+            '<div class="card-author">' +
+                '<div class="avatar">' + escapeHtml(initial) + '</div>' +
+                '<div>' +
+                    '<div class="author-name">' + escapeHtml(quote.author) + '</div>' +
+                    '<a class="author-link" href="' + escapeHtml(quote.authorLink) + '" target="_blank" rel="noopener">Ver mas</a>' +
+                '</div>' +
+            '</div>' +
+            (tagsHtml ? '<div class="card-tags">' + tagsHtml + '</div>' : '');
+
+        card.querySelectorAll(".tag").forEach(tagElement => {
+            tagElement.addEventListener("click", () => {
+                const tag = tagElement.dataset.tag;
+                tagSelect.value = tag in getTagOptions() ? tag : "";
+                fetchQuotes(tag);
+            });
+        });
+
+        grid.appendChild(card);
+    });
+}
+
+function applyLocalFilter() {
+    const term = searchInput.value.trim().toLowerCase();
+
+    if (!term) {
+        renderCards(allQuotes);
+        setStatus("Mostrando " + allQuotes.length + " citas.");
+        return;
+    }
+
+    const filtered = allQuotes.filter(quote =>
+        quote.text.toLowerCase().includes(term) ||
+        quote.author.toLowerCase().includes(term) ||
+        quote.tags.some(tag => tag.toLowerCase().includes(term))
+    );
+
+    renderCards(filtered);
+    setStatus("Filtro local: " + filtered.length + " de " + allQuotes.length + " citas.");
+}
+
+async function fetchQuotes(tag = "", forceRefresh = false) {
+    setLoading(true);
+    setStatus("Conectando con el servidor...");
+    searchInput.value = "";
+
+    try {
+        const params = new URLSearchParams();
+        if (tag) params.set("tag", tag);
+        if (forceRefresh) params.set("refresh", "true");
+
+        const query = params.toString();
+        const url = API_BASE + "/quotes" + (query ? "?" + query : "");
+        const response = await fetch(url);
+
+        if (!response.ok) {
+            throw new Error("HTTP " + response.status);
+        }
+
+        const data = await response.json();
+        allQuotes = data.quotes || [];
+        renderCards(allQuotes);
+        setStatus(
+            "Cargadas " + allQuotes.length + " citas" +
+            (tag ? ' para el tag "' + tag + '"' : "") +
+            (forceRefresh ? " (datos actualizados)" : "")
+        );
+    } catch (error) {
+        console.error("[error]", error);
+        setStatus("Error: " + error.message + ". Comprueba que el servidor sigue arrancado.");
+        renderCards([]);
+    } finally {
+        setLoading(false);
+    }
+}
+
+async function loadTags() {
+    try {
+        const response = await fetch(API_BASE + "/tags");
+        const tags = await response.json();
+
+        if (!Array.isArray(tags)) {
+            return;
+        }
+
+        tags.forEach(tag => {
+            const option = document.createElement("option");
+            option.value = tag;
+            option.textContent = tag;
+            tagSelect.appendChild(option);
+        });
+    } catch (error) {
+        console.error("[error loadTags]", error);
+    }
+}
+
+btnBuscar.addEventListener("click", () => {
+    fetchQuotes(tagSelect.value, false);
+});
+
+btnActualizar.addEventListener("click", () => {
+    fetchQuotes(tagSelect.value, true);
+});
+
+searchInput.addEventListener("input", applyLocalFilter);
+
+tagSelect.addEventListener("change", () => {
+    fetchQuotes(tagSelect.value, false);
+});
+
+(async () => {
+    await loadTags();
+    fetchQuotes("", false);
+})();
+`;
 
 // ──────────────────────────────────────────────
 // Caché en memoria (TTL: 5 minutos)
@@ -30,9 +212,6 @@ function setCache(key, data) {
 
 // ──────────────────────────────────────────────
 // Función de scraping
-// Navega hasta quotes.toscrape.com, opcionalmente
-// filtra por tag, y recorre hasta MAX_PAGES páginas
-// pulsando el botón "Next".
 // ──────────────────────────────────────────────
 async function scrapeQuotes(tag = "", forceRefresh = false) {
     const cacheKey = tag ? `tag:${tag}` : "all";
@@ -58,16 +237,11 @@ async function scrapeQuotes(tag = "", forceRefresh = false) {
         "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
     );
 
-    // Construir URL inicial
     const baseUrl = tag
         ? `https://quotes.toscrape.com/tag/${encodeURIComponent(tag)}/`
         : "https://quotes.toscrape.com/";
 
     await page.goto(baseUrl, { waitUntil: "networkidle2", timeout: 30000 });
-
-    // Interacción: si hay tag, lo buscamos clicando en la nube de tags de la
-    // página principal (sólo cuando venimos sin tag para simular navegación).
-    // En cualquier caso navegamos varias páginas con el botón "Next".
 
     const MAX_PAGES = 5;
     const quotes = [];
@@ -75,7 +249,6 @@ async function scrapeQuotes(tag = "", forceRefresh = false) {
     for (let pageNum = 1; pageNum <= MAX_PAGES; pageNum++) {
         console.log(`[puppeteer] Extrayendo página ${pageNum}…`);
 
-        // Extraer citas de la página actual
         const pageQuotes = await page.evaluate(() => {
             const items = document.querySelectorAll("div.quote");
             return Array.from(items).map(el => {
@@ -91,9 +264,8 @@ async function scrapeQuotes(tag = "", forceRefresh = false) {
 
         quotes.push(...pageQuotes);
 
-        // Intentar pulsar el botón "Next"
         const nextBtn = await page.$("li.next > a");
-        if (!nextBtn) break; // No hay más páginas
+        if (!nextBtn) break;
 
         await Promise.all([
             page.waitForNavigation({ waitUntil: "networkidle2", timeout: 20000 }),
@@ -109,16 +281,13 @@ async function scrapeQuotes(tag = "", forceRefresh = false) {
 }
 
 // ──────────────────────────────────────────────
-// Endpoints
+// Endpoints API
 // ──────────────────────────────────────────────
 
 /**
- * GET /quotes
- * Query params:
- *   tag      – filtrar por etiqueta (opcional)
- *   refresh  – si es "true" ignora la caché
+ * GET /api/quotes
  */
-app.get("/quotes", async (req, res) => {
+app.get("/api/quotes", async (req, res) => {
     try {
         const tag = (req.query.tag || "").trim().toLowerCase();
         const forceRefresh = req.query.refresh === "true";
@@ -132,10 +301,9 @@ app.get("/quotes", async (req, res) => {
 });
 
 /**
- * GET /tags
- * Devuelve la lista de tags disponibles (de la nube de la página principal).
+ * GET /api/tags
  */
-app.get("/tags", async (req, res) => {
+app.get("/api/tags", async (req, res) => {
     try {
         const cached = getCached("tags");
         if (cached) return res.json(cached);
@@ -161,13 +329,28 @@ app.get("/tags", async (req, res) => {
     }
 });
 
+// Ruta raíz → servir index.html
+app.get("/", (req, res) => {
+    const indexPath = path.join(__dirname, "..", "Front", "index.html");
+    const html = fs.readFileSync(indexPath, "utf8");
+
+    res.type("html").send(
+        html.replace(
+            "</body>",
+            `<script>${FRONTEND_SCRIPT}</script>\n</body>`
+        )
+    );
+});
+
 // ──────────────────────────────────────────────
 // Arrancar servidor
 // ──────────────────────────────────────────────
 app.listen(PORT, () => {
-    console.log(`Servidor escuchando en http://localhost:${PORT}`);
-    console.log(`  GET /quotes          → todas las citas (5 páginas)`);
-    console.log(`  GET /quotes?tag=love → citas filtradas por tag`);
-    console.log(`  GET /quotes?refresh=true → forzar actualización`);
-    console.log(`  GET /tags            → lista de tags disponibles`);
+    console.log(`\nServidor escuchando en http://localhost:${PORT}`);
+    console.log(`  GET /             → Frontend (index.html)`);
+    console.log(`  GET /api/quotes   → Todas las citas (5 páginas)`);
+    console.log(`  GET /api/quotes?tag=love → Citas filtradas por tag`);
+    console.log(`  GET /api/quotes?refresh=true → Forzar actualización`);
+    console.log(`  GET /api/tags    → Lista de tags disponibles\n`);
 });
+
