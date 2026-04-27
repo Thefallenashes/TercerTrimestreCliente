@@ -4,11 +4,325 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Quotes Scraper – DWEC</title>
+    <style>
+        /* ── Reset & Variables ── */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg:        #0f172a;
+            --surface:   #1e293b;
+            --surface2:  #273549;
+            --accent:    #6366f1;
+            --accent2:   #818cf8;
+            --text:      #e2e8f0;
+            --muted:     #94a3b8;
+            --border:    #334155;
+            --tag-bg:    #312e81;
+            --tag-text:  #c7d2fe;
+            --radius:    12px;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ── Header ── */
+        header {
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+            padding: 2rem 1.5rem 1.5rem;
+            text-align: center;
+            border-bottom: 1px solid var(--border);
+        }
+
+        header h1 {
+            font-size: clamp(1.6rem, 4vw, 2.4rem);
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            background: linear-gradient(90deg, #a5b4fc, #818cf8, #6366f1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        header p {
+            margin-top: .4rem;
+            color: var(--muted);
+            font-size: .9rem;
+        }
+
+        /* ── Controls ── */
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: .75rem;
+            justify-content: center;
+            align-items: center;
+            padding: 1.5rem 1rem;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .search-wrapper {
+            position: relative;
+            flex: 1 1 260px;
+            max-width: 400px;
+        }
+
+        .search-wrapper input {
+            width: 100%;
+            padding: .6rem 1rem .6rem 2.6rem;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--bg);
+            color: var(--text);
+            font-size: .95rem;
+            outline: none;
+            transition: border-color .2s;
+        }
+
+        .search-wrapper input:focus { border-color: var(--accent); }
+
+        .search-wrapper .icon {
+            position: absolute;
+            left: .75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--muted);
+            pointer-events: none;
+        }
+
+        select {
+            padding: .6rem .9rem;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--bg);
+            color: var(--text);
+            font-size: .95rem;
+            cursor: pointer;
+            outline: none;
+        }
+
+        .btn {
+            padding: .6rem 1.3rem;
+            border-radius: 8px;
+            border: none;
+            font-size: .95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity .2s, transform .1s;
+        }
+
+        .btn:active { transform: scale(.97); }
+        .btn:disabled { opacity: .5; cursor: not-allowed; }
+
+        .btn-primary {
+            background: var(--accent);
+            color: #fff;
+        }
+        .btn-primary:hover:not(:disabled) { opacity: .88; }
+
+        .btn-secondary {
+            background: var(--surface2);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+        .btn-secondary:hover:not(:disabled) { opacity: .8; }
+
+        /* ── Status bar ── */
+        #status-bar {
+            text-align: center;
+            padding: .5rem;
+            font-size: .85rem;
+            color: var(--muted);
+            min-height: 2rem;
+        }
+
+        /* ── Loading spinner ── */
+        .loader {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            padding: 4rem;
+        }
+
+        .loader.visible { display: flex; }
+
+        .spinner {
+            width: 48px; height: 48px;
+            border: 5px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin .8s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .loader p { color: var(--muted); font-size: 1rem; }
+
+        /* ── Grid ── */
+        #grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.25rem;
+            padding: 1.5rem;
+            flex: 1;
+        }
+
+        /* ── Cards ── */
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: .9rem;
+            transition: transform .2s, box-shadow .2s;
+            animation: fadeIn .3s ease both;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0,0,0,.4);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .card-quote {
+            font-size: 1.05rem;
+            line-height: 1.65;
+            color: var(--text);
+            font-style: italic;
+            flex: 1;
+        }
+
+        .card-quote::before { content: '\201C'; color: var(--accent2); font-size: 1.6rem; line-height: 0; vertical-align: -0.4em; margin-right: 2px; }
+        .card-quote::after  { content: '\201D'; color: var(--accent2); font-size: 1.6rem; line-height: 0; vertical-align: -0.4em; margin-left:  2px; }
+
+        .card-author {
+            display: flex;
+            align-items: center;
+            gap: .65rem;
+        }
+
+        .avatar {
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), #a78bfa);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: .85rem;
+            flex-shrink: 0;
+            color: #fff;
+        }
+
+        .author-name {
+            font-weight: 600;
+            font-size: .95rem;
+            color: var(--accent2);
+        }
+
+        .author-link {
+            font-size: .75rem;
+            color: var(--muted);
+            text-decoration: none;
+        }
+        .author-link:hover { color: var(--accent2); text-decoration: underline; }
+
+        .card-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: .4rem;
+        }
+
+        .tag {
+            background: var(--tag-bg);
+            color: var(--tag-text);
+            border-radius: 4px;
+            padding: .2rem .55rem;
+            font-size: .75rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: opacity .15s;
+        }
+        .tag:hover { opacity: .75; }
+
+        /* ── Empty / Error ── */
+        #empty-msg {
+            display: none;
+            grid-column: 1/-1;
+            text-align: center;
+            color: var(--muted);
+            padding: 4rem;
+            font-size: 1rem;
+        }
+
+        /* ── Footer ── */
+        footer {
+            text-align: center;
+            padding: 1rem;
+            color: var(--muted);
+            font-size: .8rem;
+            border-top: 1px solid var(--border);
+        }
+    </style>
 </head>
 
 <body>
 
+    <header>
+        <h1>&#8220; Quotes Scraper &#8221;</h1>
+        <p>Datos obtenidos en tiempo real de <strong>quotes.toscrape.com</strong></p>
+    </header>
+
+    <div class="controls">
+        <!-- Buscador local (filtra las cards ya cargadas) -->
+        <div class="search-wrapper">
+            <span class="icon">&#128269;</span>
+            <input type="text" id="search-input" placeholder="Filtrar por texto o autor…">
+        </div>
+
+        <!-- Filtro por tag (llama al backend) -->
+        <select id="tag-select">
+            <option value="">Todos los tags</option>
+        </select>
+
+        <button class="btn btn-primary" id="btn-buscar">&#9654; Buscar / Cargar</button>
+        <button class="btn btn-secondary" id="btn-actualizar">&#8635; Actualizar datos</button>
+    </div>
+
+    <div id="status-bar"></div>
+
+    <!-- Spinner de carga -->
+    <div class="loader" id="loader">
+        <div class="spinner"></div>
+        <p>Cargando citas… esto puede tardar unos segundos.</p>
+    </div>
+
+    <!-- Grid de cards -->
+    <div id="grid">
+        <p id="empty-msg">No se encontraron citas. Prueba con otro filtro.</p>
+    </div>
+
+    <footer>
+        DWEC – Proyecto Scraping &nbsp;|&nbsp; Daniel García Flores
+    </footer>
+
+    <script src="peticion.js"></script>
 </body>
 
 </html>
