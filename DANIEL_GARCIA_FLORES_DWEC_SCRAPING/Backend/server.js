@@ -10,7 +10,6 @@ const PORT = 3000;
 app.use(cors());
 app.use(express.json());
 
-// Servir archivos estáticos desde la carpeta Front
 app.use(express.static(path.join(__dirname, "..", "Front"), { index: false }));
 
 const FRONTEND_SCRIPT = `
@@ -190,9 +189,7 @@ tagSelect.addEventListener("change", () => {
 })();
 `;
 
-// ──────────────────────────────────────────────
-// Caché en memoria (TTL: 5 minutos)
-// ──────────────────────────────────────────────
+
 const cache = {};
 const CACHE_TTL_MS = 5 * 60 * 1000;
 
@@ -210,9 +207,6 @@ function setCache(key, data) {
     cache[key] = { data, timestamp: Date.now() };
 }
 
-// ──────────────────────────────────────────────
-// Función de scraping
-// ──────────────────────────────────────────────
 async function scrapeQuotes(tag = "", forceRefresh = false) {
     const cacheKey = tag ? `tag:${tag}` : "all";
 
@@ -280,13 +274,7 @@ async function scrapeQuotes(tag = "", forceRefresh = false) {
     return quotes;
 }
 
-// ──────────────────────────────────────────────
-// Endpoints API
-// ──────────────────────────────────────────────
 
-/**
- * GET /api/quotes
- */
 app.get("/api/quotes", async (req, res) => {
     try {
         const tag = (req.query.tag || "").trim().toLowerCase();
@@ -300,9 +288,6 @@ app.get("/api/quotes", async (req, res) => {
     }
 });
 
-/**
- * GET /api/tags
- */
 app.get("/api/tags", async (req, res) => {
     try {
         const cached = getCached("tags");
@@ -329,7 +314,6 @@ app.get("/api/tags", async (req, res) => {
     }
 });
 
-// Ruta raíz → servir index.html
 app.get("/", (req, res) => {
     const indexPath = path.join(__dirname, "..", "Front", "index.html");
     const html = fs.readFileSync(indexPath, "utf8");

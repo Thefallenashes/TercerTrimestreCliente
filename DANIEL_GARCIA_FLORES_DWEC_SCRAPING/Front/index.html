@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Scraper de https://quotes.toscrape.com/</title>
     <style>
-        /* ── Reset & Variables ── */
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
         :root {
@@ -285,20 +284,18 @@
 <body>
 
     <header>
-        <h1>&#8220; Quotes Scraper &#8221;</h1>
+        <h1> Scraper de cuotas</h1>
         <p>Datos obtenidos en tiempo real de <a href="https://quotes.toscrape.com/">  <strong>quotes.toscrape.com/</strong></a></p>
     </header>
 
     <div class="controls">
-        <!-- Buscador local (filtra las cards ya cargadas) -->
         <div class="search-wrapper">
             <span class="icon">&#128269;</span>
             <input type="text" id="search-input" placeholder="Filtrar por texto o autor…">
         </div>
 
-        <!-- Filtro por tag (llama al backend) -->
         <select id="tag-select">
-            <option value="">Todos los tags</option>
+            <option value="">Todo</option>
         </select>
 
         <button class="btn btn-primary" id="btn-buscar">&#9654; Buscar / Cargar</button>
@@ -306,20 +303,16 @@
     </div>
 
     <div id="status-bar"></div>
-
-    <!-- Spinner de carga -->
     <div class="loader" id="loader">
         <div class="spinner"></div>
-        <p>Cargando citas… esto puede tardar unos segundos.</p>
+        <p>Cargando citas…</p>
     </div>
 
-    <!-- Grid de cards -->
     <div id="grid">
         <p id="empty-msg">No se encontraron citas. Prueba con otro filtro.</p>
     </div>
 
     <footer>
-        DWEC – Proyecto Scraping &nbsp;|&nbsp; Daniel García Flores
     </footer>
 
 </body>
