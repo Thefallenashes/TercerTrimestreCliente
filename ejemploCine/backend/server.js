@@ -6,8 +6,18 @@ const cors = require("cors");
 const app = express();
 app.use(cors());
 
+
+let cache =null ;
+let lastFetch=0;
+const CACHE_TIME=10*60*1000;
+
 app.get("/peliculas", async (req, res) => {
-    const browser = await puppeteer.launch();
+  const now = Date.now();
+  if(cache && (now - lastFetch<CACHE_TIME)){
+    console.log("Usando cache");
+    return res.json(cache);
+  }
+  const browser = await puppeteer.launch();
     const page = await browser.newPage();
 
     await page.goto("https://cinesembajadores.es/oviedo/", {

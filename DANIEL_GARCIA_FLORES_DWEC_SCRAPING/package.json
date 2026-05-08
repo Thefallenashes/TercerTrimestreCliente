@@ -1,0 +1,14 @@
+{
+  "name": "dwec-scraping",
+  "version": "1.0.0",
+  "description": "Proyecto de scraping con Node.js, Express y Puppeteer",
+  "main": "Backend/server.js",
+  "scripts": {
+    "start": "node Backend/server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "puppeteer": "^23.11.1"
+  }
+}
